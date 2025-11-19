@@ -1,0 +1,5 @@
+app_name: Goblin
+environment: development
+log_level: INFO
+data_dir: /opt/goblin/data
+logs_dir: /opt/goblin/logs

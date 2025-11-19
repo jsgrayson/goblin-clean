@@ -10,6 +10,8 @@ from backend.ui.router import router as ui_router
 from backend.ui.actions_router import router as actions_router
 from backend.ui.status_api import router as status_router
 from backend.ui.logs_router import router as logs_router
+from backend.ui.config_router import router as config_router
+
 
 # -------------------------------------------------
 # Create FastAPI App
@@ -39,6 +41,8 @@ app.include_router(ui_router)          # HTML pages + static files
 app.include_router(actions_router)     # Start/stop/restart agents
 app.include_router(status_router)      # CPU/mem/disk + container status
 app.include_router(logs_router)        # Log viewer (Step 5)
+app.include_router(config_router)
+
 
 # -------------------------------------------------
 # Root endpoint
