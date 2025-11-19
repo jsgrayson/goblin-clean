@@ -12,6 +12,11 @@ from backend.ui.status_api import router as status_router
 from backend.ui.logs_router import router as logs_router
 from backend.ui.config_router import router as config_router
 
+# ---- Agent Import (Vertical Slice Feature) ----
+try:
+    from agents import tsm_brain_agent
+except ImportError:
+    tsm_brain_agent = None
 
 # -------------------------------------------------
 # Create FastAPI App
@@ -43,13 +48,23 @@ app.include_router(status_router)      # CPU/mem/disk + container status
 app.include_router(logs_router)        # Log viewer (Step 5)
 app.include_router(config_router)
 
-
 # -------------------------------------------------
 # Root endpoint
 # -------------------------------------------------
 @app.get("/")
 async def root():
     return {"status": "ok", "message": "Goblin backend running"}
+
+# -------------------------------------------------
+# NEW: TSM Brain Agent Endpoint (Vertical Slice)
+# -------------------------------------------------
+@app.post("/run_tsm_brain")
+async def run_tsm_brain():
+    if tsm_brain_agent:
+        result = tsm_brain_agent.run()
+        return {"result": result}
+    else:
+        return {"result": "TSM Brain agent module not found"}
 
 # -------------------------------------------------
 # Optional: Uvicorn Runtime (only used if run directly)
