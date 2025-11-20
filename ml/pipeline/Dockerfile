@@ -8,10 +8,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         && rm -rf /var/lib/apt/lists/*
 
-COPY ../../requirements.txt /tmp/requirements.txt
+COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-COPY . /app
+COPY ml /app/ml
 
 CMD ["python", "-c", "print('ML worker ready.')"]
 

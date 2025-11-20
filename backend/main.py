@@ -12,6 +12,13 @@ from backend.ui.status_api import router as status_router
 from backend.ui.logs_router import router as logs_router
 from backend.ui.config_router import router as config_router
 
+# ---- ML API Router ----
+from backend.app.ml_router import router as ml_router
+
+# ---- Character API Router ----
+from backend.app.character_router import router as character_router
+
+
 # ---- Agent Import (Vertical Slice Feature) ----
 try:
     from agents import tsm_brain_agent
@@ -47,6 +54,8 @@ app.include_router(actions_router)     # Start/stop/restart agents
 app.include_router(status_router)      # CPU/mem/disk + container status
 app.include_router(logs_router)        # Log viewer (Step 5)
 app.include_router(config_router)
+app.include_router(ml_router)          # ML predictions and control
+app.include_router(character_router)   # Character management
 
 # -------------------------------------------------
 # Root endpoint

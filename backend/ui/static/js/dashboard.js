@@ -1,265 +1,115 @@
-async function updateStatus() {
+// Dashboard JavaScript
+const API_BASE = window.location.origin;
+
+// Load opportunities
+async function loadOpportunities() {
     try {
-        let res = await fetch("/ui/status");
-        let data = await res.json();
+        const response = await fetch(`${API_BASE}/api/ml/opportunities`);
+        const data = await response.json();
 
-        // Update system metrics
-        document.getElementById("cpu").innerText = data.cpu + "%";
-        document.getElementById("mem").innerText = data.mem + "%";
-        document.getElementById("disk").innerText = data.disk + "%";
+        // Update stats
+        document.getElementById('opp-count').textContent = data.count || 0;
+        document.getElementById('last-scan').textContent = new Date(data.timestamp).toLocaleString();
 
-        // Update agent colored dots
-        for (const agent in data.agents) {
-            let el = document.getElementById("agent-" + agent);
-            if (el) el.className = "status-dot " + data.agents[agent];
-        }
+        // Calculate total profit
+        const totalProfit = data.opportunities.reduce((sum, opp) => {
+            const profit = (opp.predicted_price - opp.price) * opp.quantity;
+            return sum + profit;
+        }, 0);
+        document.getElementById('total-profit').textContent = formatGold(totalProfit);
 
-        // Update container list
-        let contDiv = document.getElementById("containers");
-        contDiv.innerHTML = "";
-        data.containers.forEach(c => {
-            contDiv.innerHTML += `
-                <div class="container-card">
-                    <strong>${c.name}</strong><br>
-                    Status: ${c.status}
-                </div>`;
+        // Render table
+        const tbody = document.getElementById('opportunities-tbody');
+        tbody.innerHTML = '';
+
+        data.opportunities.slice(0, 20).forEach(opp => {
+            const profit = (opp.predicted_price - opp.price) * opp.quantity;
+            const roi = ((opp.predicted_price - opp.price) / opp.price * 100).toFixed(1);
+
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${opp.item_id}</td>
+                <td>${formatGold(opp.price)}</td>
+                <td>${formatGold(opp.predicted_price)}</td>
+                <td class="profit">${formatGold(profit)}</td>
+                <td class="roi">${roi}%</td>
+                <td>${opp.quantity}</td>
+            `;
         });
-
-    } catch (err) {
-        console.log("Status update failed:", err);
+    } catch (error) {
+        console.error('Error loading opportunities:', error);
+        document.getElementById('opportunities-tbody').innerHTML =
+            '<tr><td colspan="6" class="error">Error loading data. Is the server running?</td></tr>';
     }
 }
 
-setInterval(updateStatus, 5000);
-updateStatus();
-
-
-// ---------------------------------------------------------
-// STEP 4 — SPINNER HELPERS
-// ---------------------------------------------------------
-
-function showSpinner(btn) {
-    btn.dataset.original = btn.innerHTML;
-    btn.innerHTML = btn.innerHTML + ' <span class="spinner"></span>';
-}
-
-function hideSpinner(btn) {
-    if (btn.dataset.original) {
-        btn.innerHTML = btn.dataset.original;
-        delete btn.dataset.original;
-    }
-}
-
-
-// ---------------------------------------------------------
-// AGENT ACTIONS
-// ---------------------------------------------------------
-
-async function agentAction(agent, action) {
+// Load AI groups count
+async function loadGroupsCount() {
     try {
-        const buttons = document.querySelectorAll(`.agent-card button`);
-        const clicked = event.target;
-
-        // Disable all buttons during action
-        buttons.forEach(b => b.disabled = true);
-
-        // Show loading spinner on clicked button
-        showSpinner(clicked);
-
-        let toast = document.getElementById("toast");
-        toast.style.display = "block";
-        toast.innerText = `Running ${action} on ${agent}...`;
-
-        let res = await fetch(`/ui/actions/${action}/${agent}`, {
-            method: "POST"
-        });
-        let data = await res.json();
-
-        if (data.status === "ok") {
-            toast.innerText = `${agent} ${action} completed`;
-        } else {
-            toast.innerText = `Error: ${data.message || "Unknown failure"}`;
-        }
-
-        hideSpinner(clicked);
-        buttons.forEach(b => b.disabled = false);
-
-        setTimeout(() => { toast.style.display = "none"; }, 4000);
-
-        updateStatus();
-
-    } catch (err) {
-        console.log("Agent action failed:", err);
-
-        const buttons = document.querySelectorAll(`.agent-card button`);
-        buttons.forEach(b => b.disabled = false);
-
-        hideSpinner(event.target);
-
-        let toast = document.getElementById("toast");
-        toast.style.display = "block";
-        toast.innerText = "Action failed";
-        setTimeout(() => { toast.style.display = "none"; }, 4000);
+        const response = await fetch(`${API_BASE}/static/data/groups/ai_groups.json`);
+        const data = await response.json();
+        document.getElementById('group-count').textContent = data.num_groups || 0;
+    } catch (error) {
+        document.getElementById('group-count').textContent = '0';
     }
 }
 
-
-// ---------------------------------------------------------
-// SYSTEM ACTIONS (backup, update)
-// ---------------------------------------------------------
-
-async function systemAction(action) {
+// Load news predictions
+async function loadNews() {
     try {
-        const sysButtons = document.querySelectorAll(`.sys-btn`);
-        const clicked = event.target;
+        const response = await fetch(`${API_BASE}/static/data/news/news_analysis.json`);
+        const data = await response.json();
 
-        sysButtons.forEach(b => b.disabled = true);
-        showSpinner(clicked);
+        const container = document.getElementById('news-alerts');
+        container.innerHTML = '';
 
-        let toast = document.getElementById("toast");
-        toast.style.display = "block";
-        toast.innerText = `Running: ${action}...`;
-
-        let res = await fetch(`/ui/actions/${action}`, { method: "POST" });
-        let data = await res.json();
-
-        if (data.status === "ok") {
-            toast.innerText = `${action} completed successfully`;
+        if (data.recommendations && data.recommendations.length > 0) {
+            data.recommendations.slice(0, 5).forEach(rec => {
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${rec.action.toLowerCase()}`;
+                alert.innerHTML = `
+                    <strong>${rec.action}: ${rec.category}</strong><br>
+                    ${rec.strategy}<br>
+                    <em>Expected ${rec.expected_roi || rec.expected_loss_avoided} - ${rec.timeline}</em>
+                `;
+                container.appendChild(alert);
+            });
         } else {
-            toast.innerText = `Error: ${data.message || "Unknown failure"}`;
+            container.innerHTML = '<p class="text-muted">No news predictions available.</p>';
         }
-
-        hideSpinner(clicked);
-        sysButtons.forEach(b => b.disabled = false);
-
-        setTimeout(() => { toast.style.display = "none"; }, 4000);
-
-        updateStatus();
-
-    } catch (err) {
-        const sysButtons = document.querySelectorAll(`.sys-btn`);
-        sysButtons.forEach(b => b.disabled = false);
-
-        hideSpinner(event.target);
-
-        let toast = document.getElementById("toast");
-        toast.style.display = "block";
-        toast.innerText = "System action failed";
-        setTimeout(() => { toast.style.display = "none"; }, 4000);
-    }
-}
-/* ---------------------------------------------------------
-   STEP 5 — LOG VIEWER FUNCTIONS
---------------------------------------------------------- */
-
-let currentLogAgent = null;
-
-async function openLogs(agent) {
-    currentLogAgent = agent;
-    document.getElementById("logModal").style.display = "block";
-    document.getElementById("logText").innerText = "(loading logs...)";
-    refreshLogs();
-}
-
-async function refreshLogs() {
-    if (!currentLogAgent) return;
-
-    try {
-        let res = await fetch(`/ui/logs/${currentLogAgent}`);
-        let data = await res.json();
-
-        if (data.status === "ok") {
-            document.getElementById("logText").innerText = data.log;
-        } else {
-            document.getElementById("logText").innerText =
-                "Error: " + (data.message || "unknown");
-        }
-
-    } catch (err) {
-        document.getElementById("logText").innerText =
-            "Network error loading logs.";
+    } catch (error) {
+        document.getElementById('news-alerts').innerHTML = '<p class="text-muted">News analysis not available.</p>';
     }
 }
 
-function closeLogs() {
-    document.getElementById("logModal").style.display = "none";
-}
+// Format copper to gold
+function formatGold(copper) {
+    const gold = Math.floor(copper / 10000);
+    const silver = Math.floor((copper % 10000) / 100);
+    const copperRem = copper % 100;
 
-/* ---------------------------------------------------------
-   STEP 6 — CHARTS (CPU / MEM / DISK / CONTAINERS)
---------------------------------------------------------- */
-
-let cpuChart, memChart, diskChart, containerChart;
-
-// Create empty datasets on page load
-function initCharts() {
-    const chartOptions = {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: '',
-                data: [],
-                borderColor: '#40c4ff',
-                backgroundColor: 'rgba(64,196,255,0.1)',
-                borderWidth: 2,
-                tension: 0.2
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    };
-
-    cpuChart = new Chart(document.getElementById('cpuChart'), JSON.parse(JSON.stringify(chartOptions)));
-    cpuChart.data.datasets[0].label = "CPU %";
-
-    memChart = new Chart(document.getElementById('memChart'), JSON.parse(JSON.stringify(chartOptions)));
-    memChart.data.datasets[0].label = "Memory %";
-
-    diskChart = new Chart(document.getElementById('diskChart'), JSON.parse(JSON.stringify(chartOptions)));
-    diskChart.data.datasets[0].label = "Disk %";
-
-    containerChart = new Chart(document.getElementById('containerChart'), JSON.parse(JSON.stringify(chartOptions)));
-    containerChart.data.datasets[0].label = "Containers Running";
-}
-
-// Append a datapoint to a chart
-function addPoint(chart, value) {
-    const now = new Date().toLocaleTimeString();
-    chart.data.labels.push(now);
-    chart.data.datasets[0].data.push(value);
-
-    // Keep only the last 20 points
-    if (chart.data.labels.length > 20) {
-        chart.data.labels.shift();
-        chart.data.datasets[0].data.shift();
+    if (gold > 0) {
+        return `${gold.toLocaleString()}g ${silver}s ${copperRem}c`;
+    } else if (silver > 0) {
+        return `${silver}s ${copperRem}c`;
+    } else {
+        return `${copperRem}c`;
     }
-
-    chart.update();
 }
 
-// Patch updateStatus() to update charts
-const originalUpdateStatus = updateStatus;
+// Refresh button
+function refreshOpportunities() {
+    loadOpportunities();
+    loadGroupsCount();
+    loadNews();
+}
 
-updateStatus = async function() {
-    await originalUpdateStatus();
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    loadOpportunities();
+    loadGroupsCount();
+    loadNews();
 
-    // Grab updated values from UI
-    const cpu = parseFloat(document.getElementById("cpu").innerText);
-    const mem = parseFloat(document.getElementById("mem").innerText);
-    const disk = parseFloat(document.getElementById("disk").innerText);
-    const cont = document.getElementById("containers").children.length;
-
-    addPoint(cpuChart, cpu);
-    addPoint(memChart, mem);
-    addPoint(diskChart, disk);
-    addPoint(containerChart, cont);
-};
-
-// Initialize charts on page load
-window.addEventListener("load", initCharts);
-
+    // Auto-refresh every 5 minutes
+    setInterval(refreshOpportunities, 300000);
+});

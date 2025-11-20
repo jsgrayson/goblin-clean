@@ -74,13 +74,17 @@ services:
   # ML Worker (Training/Predict)
   # ------------------------------
   goblin-ml:
-    build: ./ml/pipeline
+    build:
+      context: .
+      dockerfile: ml/pipeline/Dockerfile
     container_name: goblin-ml
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
-      - ./ml:/app
+      - ./ml:/app/ml
+      - ./backend:/app/backend
       - ./data:/data
+    command: python -m ml.pipeline.scheduler
     restart: unless-stopped
 
 # ------------------------------
@@ -88,4 +92,5 @@ services:
 # ------------------------------
 volumes:
   goblin-data:
+
 

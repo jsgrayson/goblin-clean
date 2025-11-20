@@ -4,3 +4,7 @@ __pycache__/
 *.pkl
 *.log
 .env
+backend/config/secrets.env
+backend/config/gmail_token.pickle
+backend/config/gmail_credentials.json
+

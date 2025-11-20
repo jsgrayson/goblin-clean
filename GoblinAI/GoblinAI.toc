@@ -1,0 +1,33 @@
+## Interface: 110002
+## Title: Goblin AI
+## Notes: AI-powered gold making assistant with market intelligence, crafting optimization, and material management
+## Author: YourName
+## Version: 1.0.0
+## SavedVariables: GoblinAIDB
+## OptionalDeps: TradeSkillMaster
+
+# Core files
+Core.lua
+CharacterData.lua
+
+# Scanner
+Scanner.lua
+
+# Data sync
+SavedVariablesExport.lua
+
+# Materials
+Materials\InventoryTracker.lua
+Materials\MailHelper.lua
+
+# UI
+UI\OpportunityFrame.lua
+UI\CraftingQueue.lua
+UI\NewsAlerts.lua
+UI\MaterialsFrame.lua
+
+# Trading
+Automation\AssistedTrader.lua
+
+# TSM Integration
+GroupsIntegration.lua
