@@ -18,6 +18,9 @@ from backend.app.ml_router import router as ml_router
 # ---- Character API Router ----
 from backend.app.character_router import router as character_router
 
+# ---- SkillWeaver Integration Router ----
+from backend.app.skillweaver_router import router as skillweaver_router
+
 
 # ---- Agent Import (Vertical Slice Feature) ----
 try:
@@ -56,6 +59,7 @@ app.include_router(logs_router)        # Log viewer (Step 5)
 app.include_router(config_router)
 app.include_router(ml_router)          # ML predictions and control
 app.include_router(character_router)   # Character management
+app.include_router(skillweaver_router) # SkillWeaver integration
 
 # -------------------------------------------------
 # Root endpoint
