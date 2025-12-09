@@ -21,6 +21,9 @@ from backend.app.character_router import router as character_router
 # ---- SkillWeaver Integration Router ----
 from backend.app.skillweaver_router import router as skillweaver_router
 
+# ---- Dashboard Data API Router ----
+from backend.ui.dashboard_api import router as dashboard_api_router
+
 
 # ---- Agent Import (Vertical Slice Feature) ----
 try:
@@ -45,6 +48,12 @@ app.add_middleware(
 )
 
 # -------------------------------------------------
+# Mount Static Files (CSS, JS, images)
+# -------------------------------------------------
+from fastapi.staticfiles import StaticFiles
+app.mount("/static", StaticFiles(directory="backend/static"), name="static")
+
+# -------------------------------------------------
 # Mount Core Backend (agents / ML / tasks)
 # -------------------------------------------------
 app.mount("/backend", core_app)
@@ -60,6 +69,7 @@ app.include_router(config_router)
 app.include_router(ml_router)          # ML predictions and control
 app.include_router(character_router)   # Character management
 app.include_router(skillweaver_router) # SkillWeaver integration
+app.include_router(dashboard_api_router) # Dashboard data API
 
 # -------------------------------------------------
 # Root endpoint

@@ -3,9 +3,13 @@ from prometheus_client.parser import text_string_to_metric_families
 import requests
 import psutil
 import docker
+import time
 
 router = APIRouter()
-docker_client = docker.from_env()
+try:
+    docker_client = docker.from_env()
+except Exception:
+    docker_client = None
 
 PROM_URL = "http://localhost:8000/status/metrics"
 
@@ -55,14 +59,16 @@ async def ui_status():
     disk = psutil.disk_usage("/").percent
 
     # Docker containers
-    try:
-        containers = docker_client.containers.list(all=True)
-        c_stats = [
-            {"name": c.name, "status": c.status}
-            for c in containers
-        ]
-    except:
-        c_stats = []
+    c_stats = []
+    if docker_client:
+        try:
+            containers = docker_client.containers.list(all=True)
+            c_stats = [
+                {"name": c.name, "status": c.status}
+                for c in containers
+            ]
+        except:
+            pass
 
     return {
         "cpu": cpu,

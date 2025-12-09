@@ -122,6 +122,52 @@ async def get_item_values(item_ids: str):
         logger.error(f"Item value lookup error: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
+# SkillWeaver Data Management
+
+class BuildCreate(BaseModel):
+    character_name: str
+    realm: str
+    name: str
+    talent_string: str
+    rotation_settings: Dict[str, Any]
+
+@router.post("/builds")
+async def save_build(build: BuildCreate):
+    """Save a talent build."""
+    try:
+        from ..database import DatabaseManager
+        db = DatabaseManager()
+        
+        # Get character ID
+        char = db.get_character(build.character_name, build.realm)
+        if not char:
+            raise HTTPException(status_code=404, detail="Character not found")
+            
+        build_id = db.save_build(
+            char['id'], 
+            build.name, 
+            build.talent_string, 
+            build.rotation_settings
+        )
+        return {"status": "success", "build_id": build_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/builds/{character_name}/{realm}")
+async def get_builds(character_name: str, realm: str):
+    """Get all builds for a character."""
+    try:
+        from ..database import DatabaseManager
+        db = DatabaseManager()
+        
+        char = db.get_character(character_name, realm)
+        if not char:
+            raise HTTPException(status_code=404, detail="Character not found")
+            
+        return db.get_builds(char['id'])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Helper functions
 
 async def _generate_gold_recommendations(character: Dict) -> List[Dict]:

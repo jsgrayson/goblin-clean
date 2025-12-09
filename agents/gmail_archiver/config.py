@@ -1,1 +1,0 @@
-ARCHIVE_DAYS = 14

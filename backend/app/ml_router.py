@@ -41,28 +41,32 @@ class ModelStatus(BaseModel):
 # Endpoints
 @router.get("/opportunities", response_model=OpportunitiesResponse)
 async def get_opportunities():
-    """Get latest flip opportunities from predictions."""
-    predictions_path = "/app/ml/data/predictions/opportunities.json"
-    
-    if not os.path.exists(predictions_path):
-        raise HTTPException(status_code=404, detail="No predictions available. Run predictions first.")
-    
+    """Get latest flip opportunities from SQL database."""
     try:
-        with open(predictions_path, "r") as f:
-            data = json.load(f)
+        from ..database import DatabaseManager
+        db = DatabaseManager()
+        predictions = db.get_latest_predictions()
         
-        opportunities = [
-            Opportunity(**opp) for opp in data.get("opportunities", [])
-        ]
+        opportunities = []
+        for p in predictions:
+            # Convert DB record to Opportunity model
+            opportunities.append(Opportunity(
+                item_id=p['item_id'],
+                price=p['predicted_price'], # Using predicted as current for now
+                predicted_price=p['predicted_price'],
+                discount_pct=0.0, # Calculate if needed
+                quantity=1 # Placeholder
+            ))
         
         return OpportunitiesResponse(
-            timestamp=data.get("timestamp", ""),
+            timestamp=datetime.now().isoformat(),
             count=len(opportunities),
             opportunities=opportunities
         )
     except Exception as e:
         logger.error(f"Error loading opportunities: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        # Return empty if DB fails
+        return OpportunitiesResponse(timestamp="", count=0, opportunities=[])
 
 @router.post("/ingest", response_model=TaskResponse)
 async def trigger_ingestion():

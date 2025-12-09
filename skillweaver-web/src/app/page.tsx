@@ -2,6 +2,17 @@ export default function Home() {
     return (
         <main className="min-h-screen p-8">
             <div className="max-w-6xl mx-auto">
+                {/* Navigation */}
+                <nav className="flex justify-between items-center mb-12 py-4 border-b border-gray-700">
+                    <div className="font-bold text-xl text-blue-400">SkillWeaver</div>
+                    <div className="space-x-6">
+                        <a href="#" className="text-gray-300 hover:text-white transition-colors">Dashboard</a>
+                        <a href="#" className="text-gray-300 hover:text-white transition-colors">Talents</a>
+                        <a href="#" className="text-gray-300 hover:text-white transition-colors">Gear</a>
+                        <a href="http://localhost:5001" target="_blank" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Holocron ↗</a>
+                    </div>
+                </nav>
+
                 {/* Header */}
                 <header className="mb-12">
                     <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-4">

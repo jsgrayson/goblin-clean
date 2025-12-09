@@ -8,8 +8,8 @@ function IntelFrame:Initialize()
 end
 
 function IntelFrame:CreateUI()
-    -- Main Frame
-    self.frame = CreateFrame("Frame", "GoblinAIIntelligenceFrame", UIParent, "BasicFrameTemplateWithInset")
+    -- Main Frame (Modern)
+    self.frame = CreateFrame("Frame", "GoblinAIIntelligenceFrame", UIParent, "BackdropTemplate")
     self.frame:SetSize(700, 500)
     self.frame:SetPoint("CENTER")
     self.frame:SetMovable(true)
@@ -18,12 +18,33 @@ function IntelFrame:CreateUI()
     self.frame:SetScript("OnDragStart", self.frame.StartMoving)
     self.frame:SetScript("OnDragStop", self.frame.StopMovingOrSizing)
     self.frame:Hide()
+    
+    -- Backdrop
+    self.frame:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        tile = false, tileSize = 0, edgeSize = 1,
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    self.frame:SetBackdropColor(0.1, 0.1, 0.1, 0.95)
+    self.frame:SetBackdropBorderColor(0, 0, 0, 1)
+
+    -- Header
+    self.frame.header = self.frame:CreateTexture(nil, "BACKGROUND")
+    self.frame.header:SetColorTexture(0.15, 0.15, 0.15, 1)
+    self.frame.header:SetPoint("TOPLEFT", 1, -1)
+    self.frame.header:SetPoint("TOPRIGHT", -1, -1)
+    self.frame.header:SetHeight(30)
 
     -- Title
-    self.frame.title = self.frame:CreateFontString(nil, "OVERLAY")
-    self.frame.title:SetFontObject("GameFontHighlight")
-    self.frame.title:SetPoint("LEFT", self.frame.TitleBg, "LEFT", 5, 0)
+    self.frame.title = self.frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    self.frame.title:SetPoint("LEFT", self.frame.header, "LEFT", 10, 0)
     self.frame.title:SetText("Goblin AI - Market Intelligence")
+    self.frame.title:SetTextColor(1, 0.8, 0) -- Gold color
+
+    -- Close Button
+    local close = CreateFrame("Button", nil, self.frame, "UIPanelCloseButton")
+    close:SetPoint("TOPRIGHT", 2, 2)
 
     -- Tabs
     self.tabs = {}
@@ -41,13 +62,35 @@ function IntelFrame:CreateUI()
 end
 
 function IntelFrame:CreateTab(id, text, onClick)
-    local tab = CreateFrame("Button", nil, self.frame, "GameMenuButtonTemplate")
+    local tab = CreateFrame("Button", nil, self.frame, "BackdropTemplate")
     tab:SetSize(120, 25)
-    tab:SetPoint("TOPLEFT", 15 + ((id-1) * 125), -30)
-    tab:SetText(text)
+    tab:SetPoint("TOPLEFT", 15 + ((id-1) * 125), -35)
+    
+    tab:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        tile = false, tileSize = 0, edgeSize = 1,
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    tab:SetBackdropColor(0.2, 0.2, 0.2, 1)
+    tab:SetBackdropBorderColor(0, 0, 0, 1)
+    
+    tab.text = tab:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    tab.text:SetPoint("CENTER")
+    tab.text:SetText(text)
+    
     tab:SetScript("OnClick", function()
+        -- Reset all tabs
+        for _, t in pairs(self.tabs) do
+            t:SetBackdropColor(0.2, 0.2, 0.2, 1)
+            t.text:SetTextColor(1, 0.82, 0)
+        end
+        -- Highlight selected
+        tab:SetBackdropColor(0.3, 0.3, 0.3, 1)
+        tab.text:SetTextColor(1, 1, 1)
         onClick(self)
     end)
+    
     self.tabs[id] = tab
 end
 
