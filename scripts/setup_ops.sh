@@ -66,7 +66,7 @@ write_file "$BASE_DIR/deployment/deploy_local.sh" \
 "echo 'Deploying Goblin locally...'" \
 "cd ~/Documents/goblin-clean/backend" \
 "source ../venv/bin/activate" \
-"uvicorn app.main:app --host 0.0.0.0 --port 8000"
+"uvicorn app.main:app --host 0.0.0.0 --port 8001"
 
 chmod +x "$BASE_DIR/deployment/deploy_local.sh"
 
@@ -122,4 +122,3 @@ chmod +x "$BASE_DIR/monitoring/health_report.sh"
 ################################################################################
 
 echo "[OPS] Ops subsystem created successfully."
-

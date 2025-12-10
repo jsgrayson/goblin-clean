@@ -18,5 +18,4 @@ scrape_configs:
   - job_name: 'goblin-backend'
     metrics_path: /status/metrics
     static_configs:
-      - targets: ['localhost:8000']
-
+      - targets: ['localhost:8001']

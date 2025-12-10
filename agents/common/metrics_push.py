@@ -1,7 +1,7 @@
 import requests
 import time
 
-BACKEND_PUSH_URL = "http://localhost:8000/status/metrics/push"
+BACKEND_PUSH_URL = "http://localhost:8001/status/metrics/push"
 
 def push_metric(agent: str, metric: str, metric_type: str, value: float = 1):
     """
@@ -37,4 +37,3 @@ def push_counter(agent: str, metric: str, value: float = 1):
 def push_gauge(agent: str, metric: str, value: float):
     """Convenience wrapper for gauges."""
     push_metric(agent=agent, metric=metric, metric_type="gauge", value=value)
-

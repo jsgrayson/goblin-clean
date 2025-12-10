@@ -253,9 +253,8 @@ EOF
 cat > "$BASE_DIR/run.sh" << 'EOF'
 #!/bin/bash
 source ../venv/bin/activate
-uvicorn app.main:app --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 EOF
 chmod +x "$BASE_DIR/run.sh"
 
 echo "[Backend] Backend created successfully."
-

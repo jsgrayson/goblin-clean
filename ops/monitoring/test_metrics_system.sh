@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-BACKEND_METRICS_URL="http://localhost:8000/status/metrics"
-BACKEND_PUSH_URL="http://localhost:8000/status/metrics/push"
+BACKEND_METRICS_URL="http://localhost:8001/status/metrics"
+BACKEND_PUSH_URL="http://localhost:8001/status/metrics/push"
 PROMETHEUS_URL="http://localhost:9090/api/v1/query"
 
 echo "======================================================"
@@ -70,4 +70,3 @@ fi
 echo "======================================================"
 echo "   🎉 Goblin Metrics System Operational & Verified!   "
 echo "======================================================"
-

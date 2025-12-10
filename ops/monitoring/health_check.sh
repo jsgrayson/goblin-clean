@@ -5,7 +5,7 @@ echo "======================================================"
 echo "               GOBLIN HEALTH CHECK TOOL               "
 echo "======================================================"
 
-BACKEND_URL="http://localhost:8000/status/health"
+BACKEND_URL="http://localhost:8001/status/health"
 LOG_ROOT="/opt/goblin/data/logs"
 DISK_WARN=80           # warn at 80% full
 DISK_CRIT=90           # critical at 90%
@@ -90,4 +90,3 @@ fi
 echo "======================================================"
 echo "     🎉 GOBLIN HEALTH CHECK COMPLETED — ALL GOOD!      "
 echo "======================================================"
-

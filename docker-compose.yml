@@ -9,7 +9,7 @@ services:
     build: ./backend
     container_name: goblin-backend
     ports:
-      - "8000:8000"
+      - "8001:8001"
     environment:
       - PYTHONUNBUFFERED=1
       - ENV_FILE=.env
@@ -92,5 +92,4 @@ services:
 # ------------------------------
 volumes:
   goblin-data:
-
 

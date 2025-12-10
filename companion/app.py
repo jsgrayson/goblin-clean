@@ -89,7 +89,7 @@ class SavedVariablesHandler(FileSystemEventHandler):
             logger.error(f"Error downloading recommendations: {e}")
 
 class CompanionApp:
-    def __init__(self, wtf_path: str, api_url: str = "http://localhost:8000"):
+    def __init__(self, wtf_path: str, api_url: str = "http://localhost:8001"):
         self.wtf_path = wtf_path
         self.api_url = api_url
         self.observer = Observer()

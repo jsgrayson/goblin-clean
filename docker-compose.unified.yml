@@ -39,7 +39,7 @@ services:
     build: ./backend
     container_name: goblin-backend
     ports:
-      - "8000:8000"
+      - "8001:8001"
     environment:
       - PYTHONUNBUFFERED=1
       - ENV_FILE=.env
@@ -62,12 +62,12 @@ services:
     build: ./skillweaver-api
     container_name: skillweaver-api
     ports:
-      - "8001:8000"
+      - "8002:8000"
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://wowuser:${DB_PASSWORD:-changeme}@postgres/wowsuite
       - REDIS_URL=redis://redis:6379
-      - GOBLIN_API_URL=http://goblin-backend:8000
+      - GOBLIN_API_URL=http://goblin-backend:8001
       # Reuse Goblin's Blizzard credentials
       - BLIZZARD_CLIENT_ID=${BLIZZARD_CLIENT_ID}
       - BLIZZARD_CLIENT_SECRET=${BLIZZARD_CLIENT_SECRET}
@@ -89,8 +89,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8001
-      - NEXT_PUBLIC_GOBLIN_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8002
+      - NEXT_PUBLIC_GOBLIN_API_URL=http://localhost:8001
     depends_on:
       - skillweaver-api
     restart: unless-stopped

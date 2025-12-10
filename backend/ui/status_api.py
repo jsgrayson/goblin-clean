@@ -11,7 +11,7 @@ try:
 except Exception:
     docker_client = None
 
-PROM_URL = "http://localhost:8000/status/metrics"
+PROM_URL = "http://localhost:8001/status/metrics"
 
 def get_prom_metrics():
     metrics = {}
@@ -77,4 +77,3 @@ async def ui_status():
         "agents": agent_status,
         "containers": c_stats
     }
-
